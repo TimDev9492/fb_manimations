@@ -1,0 +1,7 @@
+presentation.html
+slides/
+venv/
+videos/
+.vscode/
+__pycache__/
+manim/
