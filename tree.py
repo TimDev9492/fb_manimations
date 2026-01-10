@@ -1,4 +1,5 @@
 from manimlib import *
+from manim import *
 import numpy as np
 
 from manim_slides import Slide
@@ -14,7 +15,7 @@ class CRRTree(Slide):
         self.strike_price = 95
         self.tilt = 0
         self.discrete_rate_factor = np.exp(self.riskfree_rate * self.delta_t)
-        
+
         self.u = np.exp(self.asset_volatility * np.sqrt(self.delta_t) + self.tilt * self.asset_volatility**2 * self.delta_t)
         self.d = np.exp(-self.asset_volatility * np.sqrt(self.delta_t) + self.tilt * self.asset_volatility**2 * self.delta_t)
 
@@ -34,15 +35,15 @@ class CRRTree(Slide):
             x_range=t_range,
             width=10,
             decimal_number_config={
-                'font_size': 20,
+                'font_size': 32,
                 'num_decimal_places': 2,
             },
         )
-        t_axis.add_numbers()
+        t_axis.add_numbers(font_size=32)
         t_axis.to_edge(DOWN)
         self.play(ShowCreation(t_axis))
 
-        T_label = Text('T =', font_size=22)
+        T_label = Text('T =', font_size=40)
         T_label.next_to(t_axis.get_number_mobject(self.T), LEFT)
 
         self.play(Write(T_label))
@@ -51,7 +52,7 @@ class CRRTree(Slide):
         delta_t_segment = Line(t_axis.n2p(0), t_axis.n2p(self.delta_t))
         delta_t_segment.set_stroke(color=YELLOW_A)
         brace = Brace(delta_t_segment, UP)
-        brace_label = Tex(r'\Delta t = \frac{T}{n}', font_size=32)
+        brace_label = Tex(r'\Delta t = \frac{T}{n}', font_size=48)
         brace_label.next_to(brace, UP)
         self.play(Write(brace), Write(brace_label))
 
@@ -63,7 +64,7 @@ class CRRTree(Slide):
             width=6,
             include_ticks=False,
             decimal_number_config={
-                'font_size': 20,
+                'font_size': 32,
                 'num_decimal_places': 2,
             },
             line_to_number_direction=LEFT,
@@ -81,7 +82,7 @@ class CRRTree(Slide):
         price_axis.add(ticks)
 
         for price, tick in zip(prices, ticks):
-            label = DecimalNumber(price, font_size=20, num_decimal_places=2)
+            label = DecimalNumber(price, font_size=32, num_decimal_places=2)
             always(label.next_to, tick, LEFT, SMALL_BUFF)
             price_axis.add(label)
 
@@ -93,7 +94,7 @@ class CRRTree(Slide):
             t_aligned = t_axis.n2p(t)
             t_aligned[1] = price_axis.n2p(np.log(S))[1]
             return t_aligned
-            
+
         self.next_slide()
 
         NODE_COLOR = YELLOW_B
@@ -101,8 +102,9 @@ class CRRTree(Slide):
 
         S_0 = Dot(c2p(0, self.asset_price), fill_color=NODE_COLOR)
         S_0.set_z_index(1)
-        label = Tex('S_0 = 100', font_size=20)
-        label.next_to(S_0, DOWN)
+        label = Tex('S_0 = 100', font_size=48)
+        label.set_color(NODE_COLOR)
+        label.next_to(S_0, RIGHT)
 
         self.play(GrowFromCenter(S_0), Write(label))
 
@@ -111,8 +113,8 @@ class CRRTree(Slide):
         self.play(FadeOut(label))
 
         # add formulas
-        u_formula = Tex(r'u = e^{\sigma \sqrt{\Delta t}} \approx ' + str(round(self.u, 3)), font_size=32)
-        d_formula = Tex(r'd = e^{-\sigma \sqrt{\Delta t}} \approx ' + str(round(self.d, 3)), font_size=32)
+        u_formula = Tex(r'u = e^{\sigma \sqrt{\Delta t}} \approx ' + str(round(self.u, 3)), font_size=48)
+        d_formula = Tex(r'd = e^{-\sigma \sqrt{\Delta t}} \approx ' + str(round(self.d, 3)), font_size=48)
         formulas = VGroup(u_formula, d_formula).arrange(DOWN)
         formulas.next_to(c2p(0, self.y_max), RIGHT)
         self.play(Write(formulas))
@@ -159,7 +161,7 @@ class CRRTree(Slide):
                         self.play(ShowCreation(d_edge), ShowCreation(u_edge), GrowFromCenter(lower_child), GrowFromCenter(upper_child))
                     else:
                         self.play(ShowCreation(d_edge), ShowCreation(u_edge), GrowFromCenter(upper_child))
-            
+
             S_layers.add(layer_group)
             if layer > 1:
                 self.next_slide()
@@ -168,7 +170,7 @@ class CRRTree(Slide):
 class FBTree(Slide):
     def setup(self):
         self.T = 0.5
-        self.n = 8
+        self.n = 3
         self.delta_t = self.T / self.n
         self.riskfree_rate = 0.06
         self.asset_volatility = 0.2
@@ -176,7 +178,7 @@ class FBTree(Slide):
         self.strike_price = 95
         self.tilt = ValueTracker(0)
         self.discrete_rate_factor = np.exp(self.riskfree_rate * self.delta_t)
-        
+
         # self.u = np.exp(self.asset_volatility * np.sqrt(self.delta_t) + self.tilt * self.asset_volatility**2 * self.delta_t)
         self.u0 = np.exp(self.asset_volatility * np.sqrt(self.delta_t))
         self.u = always_redraw(ExponentialValueTracker, self.asset_volatility * np.sqrt(self.delta_t) + self.tilt.get_value() * self.asset_volatility**2 * self.delta_t)
@@ -233,7 +235,7 @@ class FBTree(Slide):
                 upper_child = Dot(u_pos, fill_color=self.NODE_COLOR)
                 upper_child.set_z_index(layer)
                 layer_group.add(upper_child)
-            
+
                 if up_moves == 0:
                     tree.add(d_edge, lower_child, u_edge, upper_child)
                 else:
@@ -255,11 +257,11 @@ class FBTree(Slide):
             x_range=t_range,
             width=6,
             decimal_number_config={
-                'font_size': 20,
+                'font_size': 32,
                 'num_decimal_places': 2,
             },
         )
-        self.t_axis.add_numbers()
+        self.t_axis.add_numbers(font_size=32)
         # self.t_axis.to_edge(DOWN)
 
         self.price_axis = NumberLine(
@@ -267,7 +269,7 @@ class FBTree(Slide):
             width=6,
             include_ticks=False,
             decimal_number_config={
-                'font_size': 20,
+                'font_size': 32,
                 'num_decimal_places': 2,
             },
             line_to_number_direction=LEFT,
@@ -285,7 +287,7 @@ class FBTree(Slide):
         self.price_axis.add(ticks)
 
         for price, tick in zip(prices, ticks):
-            label = DecimalNumber(price, font_size=20, num_decimal_places=2)
+            label = DecimalNumber(price, font_size=32, num_decimal_places=2)
             always(label.next_to, tick, LEFT, SMALL_BUFF)
             self.price_axis.add(label)
 
@@ -302,8 +304,8 @@ class FBTree(Slide):
         t2c = {
             r'\lambda': BLUE_A
         }
-        u_formula = Tex(r'u = e^{\sigma \sqrt{\Delta t} + \lambda \sigma^2 \Delta t}', font_size=32, t2c=t2c)
-        d_formula = Tex(r'd = e^{-\sigma \sqrt{\Delta t}  + \lambda \sigma^2 \Delta t}', font_size=32, t2c=t2c)
+        u_formula = Tex(r'u = e^{\sigma \sqrt{\Delta t} + \lambda \sigma^2 \Delta t}', font_size=48, t2c=t2c)
+        d_formula = Tex(r'd = e^{-\sigma \sqrt{\Delta t}  + \lambda \sigma^2 \Delta t}', font_size=48, t2c=t2c)
 
         lambda_label = Tex(r'\lambda', font_size=32)
         lambda_label.set_color(BLUE)
@@ -314,19 +316,22 @@ class FBTree(Slide):
 
         lambda_slider = NumberLine(
             x_range=(-5, 5, 1),
-            include_numbers=True,
-            width=5
+            include_numbers=False,
+            width=5,
+            line_to_number_direction=RIGHT
         )
-        lambda_slider.next_to(formulas, RIGHT, LARGE_BUFF)
-        lambda_label.next_to(lambda_slider, DOWN)
+        lambda_slider.rotate(90 * DEG, about_point=ORIGIN)
+        lambda_slider.add_numbers()
+        lambda_label.to_edge(RIGHT)
+        lambda_slider.next_to(lambda_label, LEFT)
         def get_tilt_on_slider():
             return lambda_slider.n2p(self.tilt.get_value())
         lambda_indicator = Dot(get_tilt_on_slider(), fill_color=BLUE)
         lambda_indicator.f_always.move_to(get_tilt_on_slider)
-        
-        lambda_value = DecimalNumber(self.tilt.get_value(), font_size=20, num_decimal_places=3)
+
+        lambda_value = DecimalNumber(self.tilt.get_value(), font_size=32, num_decimal_places=3)
         lambda_value.f_always.set_value(self.tilt.get_value)
-        always(lambda_value.next_to, lambda_indicator, UP)
+        always(lambda_value.next_to, lambda_indicator, LEFT)
 
         self.play(Write(formulas))
 
@@ -357,12 +362,14 @@ class FBTree(Slide):
         strike_line.set_stroke(color=RED, width=2)
         strike_line.set_z_index(-5)
 
-        ref_label = Tex(r'S_0 = ' + str(self.asset_price), font_size=20)
+        ref_label = Tex(r'S_0 = ' + str(self.asset_price), font_size=48)
         ref_label.set_color(ORANGE)
-        strike_label = Tex(r'K = ' + str(self.strike_price), font_size=20)
-        strike_label.set_color(ORANGE)
+        strike_label = Tex(r'K = ' + str(self.strike_price), font_size=48)
+        strike_label.set_color(RED)
         ref_label.next_to(reference_line, RIGHT)
+        # ref_label.shift(UP * SMALL_BUFF)
         strike_label.next_to(strike_line, RIGHT)
+        strike_label.shift(DOWN * SMALL_BUFF)
 
         self.play(ShowCreation(reference_line), Write(ref_label))
 
@@ -377,7 +384,7 @@ class FBTree(Slide):
 
         self.next_slide()
 
-        self.play(ShowCreation(strike_line), Write(strike_label))
+        self.play(ref_label.animate.shift(UP * SMALL_BUFF), ShowCreation(strike_line), Write(strike_label))
 
         self.next_slide()
 
