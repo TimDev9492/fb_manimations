@@ -1,5 +1,4 @@
-from manimlib import *
-from manim import *
+from manim.manimlib import *
 import numpy as np
 
 from manim_slides import Slide
@@ -57,6 +56,7 @@ class CRRTree(Slide):
         self.play(Write(brace), Write(brace_label))
 
         self.next_slide()
+
         self.play(FadeOut(T_label), FadeOut(brace), FadeOut(brace_label))
 
         price_axis = NumberLine(
@@ -94,8 +94,6 @@ class CRRTree(Slide):
             t_aligned = t_axis.n2p(t)
             t_aligned[1] = price_axis.n2p(np.log(S))[1]
             return t_aligned
-
-        self.next_slide()
 
         NODE_COLOR = YELLOW_B
         EDGE_COLOR = YELLOW_E
@@ -165,6 +163,27 @@ class CRRTree(Slide):
             S_layers.add(layer_group)
             if layer > 1:
                 self.next_slide()
+
+        self.next_slide()
+        self.play(FadeOut(formulas))
+        node_price_formula = Tex('S(i,j)=S_0 u^j d^{i-j}', font_size=48)
+        node_price_formula.move_to(formulas.get_center())
+        self.play(Write(node_price_formula))
+
+        self.next_slide()
+
+        node_labels = []
+        for layer_index in range(len(S_layers)):
+            S_layer = S_layers[layer_index]
+            for node_index in range(len(S_layer)):
+                node = S_layer[node_index]
+                node_label = Tex(f'S({layer_index},{node_index})', font_size=32)
+                node_label.next_to(node, UP)
+                node_label.set_color(NODE_COLOR)
+                node_labels.append(node_label)
+        self.play(*[Write(label) for label in node_labels])
+
+        self.next_slide()
 
 
 class FBTree(Slide):
